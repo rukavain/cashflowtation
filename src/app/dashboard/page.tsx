@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"; // For Next.js 13+
 import Link from "next/link";
 import supabase from "../../../lib/supabase";
 import { getExpenses } from "../../../lib/expenses";
+import { signOut } from "../../../lib/auth";
 
 export default function Dashboard() {
   const [expenses, setExpenses] = useState([]);
@@ -20,7 +21,7 @@ export default function Dashboard() {
         error,
       } = await supabase.auth.getUser();
       if (error || !user) {
-        router.push("/login"); // Redirect to login if no user is found
+        router.push("/account/login"); // Redirect to login if no user is found
       } else {
         setUser(user); // Set the user if found
       }
@@ -86,9 +87,6 @@ export default function Dashboard() {
             className="w-full flex justify-between items-center shadow-lg bg-gray-250 rounded-xl p-3"
           >
             <div className=" flex justify-center items-center gap-4">
-              <div className="p-3 rounded-md bg-gray-300 border border-gray-400">
-                <img className="h-8" src={expense.image} alt="" />
-              </div>
               <div>
                 <h1 className="font-bold">{expense.name}</h1>
                 <h1 className="text-xs font-semibold text-gray-500">
@@ -113,6 +111,9 @@ export default function Dashboard() {
           <img className="h-8" src="/add.png" alt="" />
         </Link>
       </div>
+      <form onSubmit={signOut}>
+        <button type="submit">Log out</button>
+      </form>
     </main>
   );
 }

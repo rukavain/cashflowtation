@@ -1,53 +1,51 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // use "next/navigation" for Next.js 13+
+import { useRouter } from "next/navigation"; // for nextjs 13+
 import Link from "next/link";
-import supabase from "../../../../lib/supabase"; // For supabase client
-import { signInWithEmail } from "../../../../lib/auth";
+import supabase from "../../../../lib/supabase"; // Import supabase client
+import { signInWithEmail } from "../../../../lib/auth"; // Assuming this is your custom function
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [user, setUser] = useState(null); // For holding the authenticated user
-  const [isMounted, setIsMounted] = useState(false); // State to check if component is mounted
+  const [isMounted, setIsMounted] = useState(false); // to ensure it's client-side
+
   const router = useRouter();
 
-  // Ensures that the code runs on the client after mounting
+  // Handle user state and redirect if logged in
   useEffect(() => {
-    setIsMounted(true); // Mark component as mounted
-  }, []);
-
-  useEffect(() => {
-    if (!isMounted) return; // Don't run this on the server-side
+    setIsMounted(true); // Ensures this code only runs on the client
 
     const checkUser = async () => {
       const {
         data: { user },
+        error,
       } = await supabase.auth.getUser();
       if (user) {
-        setUser(user);
-        router.push("/dashboard"); // Redirect to the dashboard if user is logged in
+        // If the user is logged in, redirect to dashboard
+        router.push("/dashboard");
       }
     };
 
     checkUser();
-  }, [isMounted, router]);
+  }, [router]);
 
-  // Handle email login
+  if (!isMounted) return null; // Don't render on the server
+
   const handleEmailLogin = async (e) => {
     e.preventDefault();
+
     const { user, error } = await signInWithEmail(email, password);
+
     if (error) {
       setError(error.message);
     } else {
-      setUser(user);
-      router.push("/dashboard"); // Redirect to the dashboard after successful login
+      router.push("/dashboard"); // Redirect to dashboard after login
     }
   };
 
-  // Handle Google login
   const handleGoogleLogin = async () => {
     const { user, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -56,12 +54,10 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else if (user) {
-      setUser(user);
-      router.push("/dashboard"); // Redirect to the dashboard after successful login
+      router.push("/dashboard"); // Redirect to dashboard after login
     }
   };
 
-  // Handle GitHub login
   const handleGitHubLogin = async () => {
     const { user, error } = await supabase.auth.signInWithOAuth({
       provider: "github",
@@ -70,12 +66,9 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else if (user) {
-      setUser(user);
-      router.push("/dashboard"); // Redirect to the dashboard after successful login
+      router.push("/dashboard"); // Redirect to dashboard after login
     }
   };
-
-  if (!isMounted) return null; // Prevent rendering the component until mounted on the client
 
   return (
     <main className="flex flex-col justify-between items-center rounded-md p-5 h-svh mx-4">

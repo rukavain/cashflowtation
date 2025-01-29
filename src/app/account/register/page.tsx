@@ -11,47 +11,52 @@ export default function Register() {
   const [error, setError] = useState("");
   const router = useRouter();
 
+  // Check if the user is already logged in
   useEffect(() => {
     const checkUser = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        router.push("/dashboard"); // Redirect to the dashboard if user is logged in
+        router.push("/dashboard"); // Redirect to dashboard if user is logged in
       }
     };
 
     checkUser();
   }, [router]);
 
+  // Register with email and password
   const handleRegister = async (e) => {
     e.preventDefault();
     const { user, error } = await signUpWithEmail(email, password);
+
     if (error) {
-      setError(error.message);
+      setError(error.message); // Set error if registration fails
     } else {
       console.log("Registered:", user);
-    }
-    if (user) {
-      // If logged in, redirect to dashboard
+      // Redirect to dashboard after successful registration and login
       router.push("/dashboard");
     }
   };
 
+  // Login with Google
   const handleGoogleLogin = async () => {
     const { user, error } = await signInWithProvider("google");
+
     if (error) {
-      setError(error.message);
+      setError(error.message); // Handle error
     } else {
       console.log("Logged in with Google:", user);
       router.push("/dashboard");
     }
   };
 
+  // Login with GitHub
   const handleGitHubLogin = async () => {
     const { user, error } = await signInWithProvider("github");
+
     if (error) {
-      setError(error.message);
+      setError(error.message); // Handle error
     } else {
       console.log("Logged in with GitHub:", user);
       router.push("/dashboard");
@@ -92,19 +97,20 @@ export default function Register() {
             placeholder="Password"
             required
           />
-          {error && <p>{error}</p>}
+          {error && <p className="text-red-500">{error}</p>} {/* Display error if exists */}
           <button
             type="submit"
             className="bg-gray-900 text-white font-thin text-xl rounded-md p-4 w-full max-w-md"
           >
-            Log in
+            Register
           </button>
         </form>
+
         <div className="flex flex-col w-full justify-center items-center gap-6">
           <div className="w-full flex justify-center items-center gap-2">
             <div className="border-t flex-1 border-gray-500"></div>
             <h1 className="text-sm font-semibold text-gray-600">
-              Or Login with
+              Or Register with
             </h1>
             <div className="border-t flex-1 border-gray-500"></div>
           </div>
@@ -130,7 +136,7 @@ export default function Register() {
       </div>
       <div>
         <p className="text-sm">
-          Already have an account? <span className="font-bold"> Login now</span>
+          Already have an account? <span className="font-bold">Login now</span>
         </p>
       </div>
     </main>
