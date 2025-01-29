@@ -1,10 +1,10 @@
 import Link from "next/link";
-
+import Image from "next/image";
 export default function Account() {
   return (
     <main className="flex flex-col justify-evenly items-center rounded-md p-5 h-svh mx-8">
       <div className="flex flex-col justify-center items-center">
-        <img src="/app-logo.png" alt="" />
+        <Image src="/app-logo.png" alt="description" width={500} height={300} />
         <h1 className="font-thin text-gray-600 text-xl">
           Your wallet, organized.
         </h1>

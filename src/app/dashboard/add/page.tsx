@@ -1,38 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import Dropdown from "@/app/components/Dropdown";
+
 import { useState, useEffect } from "react";
 import { addExpense } from "../../../../lib/expenses";
 import supabase from "../../../../lib/supabase";
 import { useRouter } from "next/navigation";
-
+import { User } from "@supabase/supabase-js"; // Import User type
+import Image from "next/image";
 export default function Add() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null); // Correct type definition
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   // Display loading state while fetching user
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-      if (error || !user) {
+    async function fetchUser() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data?.user) {
         router.push("/account"); // Redirect to login if no user is found
       } else {
-        setUser(user); // Set the user if found
+        setUser(data.user); // Set the user if found
       }
-    };
+    }
 
-    fetchUser();
+    fetchUser(); // Call the function
   }, [router]);
-
+  if (user) {
+    console.log("user console logged");
+  }
   useEffect(() => {
     const fetchUser = async () => {
       const {
@@ -70,7 +70,7 @@ export default function Add() {
   }, [router]);
 
   if (loading) return <p>Loading...</p>;
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const {
@@ -110,7 +110,12 @@ export default function Add() {
             href={"/dashboard"}
             className="border-2 border-gray-300 min-w-max p-2 rounded-xl"
           >
-            <img className="h-6" src="/back-icon.png" alt="" />
+            <Image
+              src="/back-icon.png"
+              alt="description"
+              width={30}
+              height={20}
+            />
           </Link>
           <h1 className="font-bold text-xl">Add Expense</h1>
         </div>
@@ -121,7 +126,7 @@ export default function Add() {
             <div className="flex gap-2 font-bold">
               <h1 className="text-3xl ">₱</h1>
               <input
-                type="text"
+                type="number"
                 placeholder="150.00"
                 className="text-5xl max-w-44"
                 value={price}
@@ -168,13 +173,6 @@ export default function Add() {
           Add Expense
         </button>
       </form>
-      <button
-        onClick={() => {
-          console.log(user.id);
-        }}
-      >
-        click
-      </button>
     </>
   );
 }

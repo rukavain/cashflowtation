@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"; // for nextjs 13+
 import Link from "next/link";
 import supabase from "../../../../lib/supabase"; // Import supabase client
 import { signInWithEmail } from "../../../../lib/auth"; // Assuming this is your custom function
-
+import Image from "next/image";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +21,6 @@ export default function Login() {
     const checkUser = async () => {
       const {
         data: { user },
-        error,
       } = await supabase.auth.getUser();
       if (user) {
         // If the user is logged in, redirect to dashboard
@@ -34,39 +33,44 @@ export default function Login() {
 
   if (!isMounted) return null; // Don't render on the server
 
-  const handleEmailLogin = async (e) => {
+  const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { user, error } = await signInWithEmail(email, password);
-
+    const { error } = await signInWithEmail(email, password);
     if (error) {
-      setError(error.message);
-    } else {
-      router.push("/dashboard"); // Redirect to dashboard after login
+      console.error("Login error:", error.message);
+      setError("Error");
     }
   };
 
   const handleGoogleLogin = async () => {
-    const { user, error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
     });
 
     if (error) {
-      setError(error.message);
-    } else if (user) {
-      router.push("/dashboard"); // Redirect to dashboard after login
+      console.error("Google login error:", error.message);
+      return;
+    }
+
+    if (data?.url) {
+      window.location.href = data.url;
     }
   };
 
   const handleGitHubLogin = async () => {
-    const { user, error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "github",
     });
 
     if (error) {
-      setError(error.message);
-    } else if (user) {
-      router.push("/dashboard"); // Redirect to dashboard after login
+      console.error("GitHub login error:", error.message);
+      return;
+    }
+
+    // Redirect the user to GitHub's login page
+    if (data?.url) {
+      window.location.href = data.url;
     }
   };
 
@@ -77,7 +81,12 @@ export default function Login() {
           href={"/account"}
           className="flex border-2 border-gray-300 min-w-max p-2 rounded-xl"
         >
-          <img className="h-6" src="/back-icon.png" alt="" />
+          <Image
+            src="/back-icon.png"
+            alt="description"
+            width={30}
+            height={20}
+          />
         </Link>
       </div>
       <h1 className="text-4xl font-semibold text-left">
@@ -126,20 +135,31 @@ export default function Login() {
               onClick={handleGoogleLogin}
               className="flex-1 border border-gray-400 rounded-md p-2 flex justify-center items-center"
             >
-              <img className="h-10" src="/google-icon.png" alt="Google" />
+              <Image
+                src="/google-icon.png"
+                alt="description"
+                width={30}
+                height={20}
+              />{" "}
             </button>
             <button
               onClick={handleGitHubLogin}
               className="flex-1 border border-gray-400 rounded-md p-2 flex justify-center items-center h-full"
             >
-              <img className="h-10" src="/github-icon.png" alt="GitHub" />
+              <Image
+                src="/github-icon.png"
+                alt="description"
+                width={30}
+                height={20}
+              />{" "}
             </button>
           </div>
         </div>
       </div>
       <div>
         <p className="text-sm">
-          Don't have an account? <span className="font-bold">Register now</span>
+          Don&apos;t have an account?{" "}
+          <span className="font-bold">Register now</span>
         </p>
       </div>
     </main>

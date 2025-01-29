@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"; // Next.js 13+ usage
 import Link from "next/link";
 import supabase from "../../../../lib/supabase"; // For supabase client
 import { signUpWithEmail, signInWithProvider } from "../../../../lib/auth";
-
+import Image from "next/image";
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +26,7 @@ export default function Register() {
   }, [router]);
 
   // Register with email and password
-  const handleRegister = async (e) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { user, error } = await signUpWithEmail(email, password);
 
@@ -70,7 +70,12 @@ export default function Register() {
           href={"/account"}
           className="border-2 border-gray-300 min-w-max p-2 rounded-xl flex"
         >
-          <img className="h-6" src="/back-icon.png" alt="" />
+          <Image
+            src="/back-icon.png"
+            alt="description"
+            width={30}
+            height={20}
+          />
         </Link>
       </div>
       <h1 className="text-4xl font-semibold text-left">
@@ -97,7 +102,8 @@ export default function Register() {
             placeholder="Password"
             required
           />
-          {error && <p className="text-red-500">{error}</p>} {/* Display error if exists */}
+          {error && <p className="text-red-500">{error}</p>}{" "}
+          {/* Display error if exists */}
           <button
             type="submit"
             className="bg-gray-900 text-white font-thin text-xl rounded-md p-4 w-full max-w-md"
@@ -119,17 +125,23 @@ export default function Register() {
               onClick={handleGoogleLogin}
               className="flex-1 border border-gray-400 rounded-md p-2 flex justify-center items-center"
             >
-              <img
-                className="h-10 flex justify-center items-center"
+              <Image
                 src="/google-icon.png"
-                alt="Google Login"
+                alt="description"
+                width={30}
+                height={20}
               />
             </button>
             <button
               onClick={handleGitHubLogin}
               className="flex-1 border border-gray-400 rounded-md p-2 flex justify-center items-center h-full"
             >
-              <img className="h-10" src="/github-icon.png" alt="GitHub Login" />
+              <Image
+                src="/github-icon.png"
+                alt="description"
+                width={30}
+                height={20}
+              />{" "}
             </button>
           </div>
         </div>
