@@ -143,7 +143,7 @@ export default function Dashboard() {
         {dummyData.map((data) => (
           <a
             key={data.id}
-            className="w-full flex justify-between items-center bg-slate-300 rounded-xl p-3"
+            className="w-full flex justify-between items-center shadow-lg bg-gray-250 rounded-xl p-3"
           >
             <div className=" flex justify-center items-center gap-4">
               <div className="p-3 rounded-md bg-gray-300 border border-gray-400">
@@ -164,6 +164,11 @@ export default function Dashboard() {
             </div>
           </a>
         ))}
+      </div>
+      <div className="sticky bottom-4 right-0 self-end">
+        <div className=" bg-gray-300 border-2 border-gray-600 rounded-full p-4">
+          <img className="h-6" src="/add.png" alt="" />
+        </div>
       </div>
     </main>
   );
