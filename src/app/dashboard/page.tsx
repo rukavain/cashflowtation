@@ -1,116 +1,55 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // For Next.js 13+
+import Link from "next/link";
+import supabase from "../../../lib/supabase";
+import { getExpenses } from "../../../lib/expenses";
+
 export default function Dashboard() {
-  const dummyData = [
-    {
-      id: "1",
-      name: "Lunch at Cafe",
-      category: "food",
-      price: 15.5,
-      date: "2025-01-15",
-      description: "Lunch with a friend at a local cafe.",
-      paymentMethod: "credit card",
-      transactionID: "TXN123456",
-      image: "/food.png",
-    },
-    {
-      id: "2",
-      name: "Gift for Birthday",
-      category: "gift",
-      price: 50.0,
-      date: "2025-01-17",
-      description: "Bought a birthday gift for a friend.",
-      paymentMethod: "debit card",
-      transactionID: "TXN123457",
-      image: "/gift.png",
-    },
-    {
-      id: "3",
-      name: "Uber ride to airport",
-      category: "transportation",
-      price: 35.75,
-      date: "2025-01-20",
-      description: "Uber ride to the airport for a business trip.",
-      paymentMethod: "paypal",
-      transactionID: "TXN123458",
-      image: "/transportation.png",
-    },
-    {
-      id: "4",
-      name: "Groceries",
-      category: "food",
-      price: 72.25,
-      date: "2025-01-21",
-      description: "Weekly grocery shopping at the supermarket.",
-      paymentMethod: "credit card",
-      transactionID: "TXN123459",
-      image: "/food.png",
-    },
-    {
-      id: "5",
-      name: "Gas for car",
-      category: "transportation",
-      price: 40.0,
-      date: "2025-01-22",
-      description: "Filled up gas for the car.",
-      paymentMethod: "cash",
-      transactionID: "TXN123460",
-      image: "/transportation.png",
-    },
-    {
-      id: "6",
-      name: "Yoga class membership",
-      category: "personal",
-      price: 120.0,
-      date: "2025-01-10",
-      description: "Monthly membership for yoga studio.",
-      paymentMethod: "credit card",
-      transactionID: "TXN123461",
-      image: "/personal.png",
-    },
-    {
-      id: "7",
-      name: "Movie tickets",
-      category: "entertainment",
-      price: 28.5,
-      date: "2025-01-12",
-      description: "Two tickets for a movie night with a friend.",
-      paymentMethod: "debit card",
-      transactionID: "TXN123462",
-      image: "/gift.png",
-    },
-    {
-      id: "8",
-      name: "Lunch at Work",
-      category: "food",
-      price: 10.25,
-      date: "2025-01-14",
-      description: "Quick lunch at the office cafeteria.",
-      paymentMethod: "cash",
-      transactionID: "TXN123463",
-      image: "/food.png",
-    },
-    {
-      id: "9",
-      name: "Shoes for the Gym",
-      category: "personal",
-      price: 85.0,
-      date: "2025-01-18",
-      description: "Bought new shoes for working out.",
-      paymentMethod: "credit card",
-      transactionID: "TXN123464",
-      image: "/personal.png",
-    },
-    {
-      id: "10",
-      name: "Taxi to dinner",
-      category: "transportation",
-      price: 18.0,
-      date: "2025-01-19",
-      description: "Taxi ride to dinner at a restaurant.",
-      paymentMethod: "cash",
-      transactionID: "TXN123465",
-      image: "/transportation.png",
-    },
-  ];
+  const [expenses, setExpenses] = useState([]);
+  const [totalSpent, setTotalSpent] = useState(0);
+  const [user, setUser] = useState(null);
+  const router = useRouter();
+
+  // Fetch the current user
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (error || !user) {
+        router.push("/login"); // Redirect to login if no user is found
+      } else {
+        setUser(user); // Set the user if found
+      }
+    };
+
+    fetchUser();
+  }, [router]);
+
+  // Fetch expenses when the user is authenticated
+  useEffect(() => {
+    if (user) {
+      const fetchExpenses = async () => {
+        const { data, error } = await getExpenses(user.id);
+        if (error) {
+          console.error("Error fetching expenses:", error);
+        } else {
+          setExpenses(data);
+          setTotalSpent(data.reduce((sum, expense) => sum + expense.price, 0)); // Calculate total spent
+        }
+      };
+
+      fetchExpenses();
+    }
+  }, [user]);
+
+  if (!user) {
+    return <p>Loading...</p>; // or a spinner while checking authentication
+  }
+
   return (
     <main className="flex mx-6 my-2 flex-col justify-evenly items-center gap">
       <div className="flex justify-between items-center w-full">
@@ -118,18 +57,19 @@ export default function Dashboard() {
           <img className="h-10" src="/hamburger.png" alt="" />
           <h1 className="font-bold text-xl">Dashboard</h1>
         </div>
-        <div>
-          <div className="bg-gray-400 px-4 py-2 rounded-full">
-            <h1 className="font-bold text-white text-2xl">A</h1>
-          </div>
+        <div className="text-right font-bold text-xs">
+          <h1>{user ? user.email : "Guest"}</h1>
         </div>
       </div>
-      <div className="flex justify-between items-center py-12 bg-black text-white w-full rounded-3xl px-6 my-12">
-        <div className="flex gap-4 font-bold justify-start items-center">
-          <h1 className="text-3xl">₱</h1>
-          <h1 className="text-5xl">150,000</h1>
+      <div className="w-full my-12">
+        <h1 className="py-4 font-bold text-gray-600">Total spent</h1>
+        <div className="flex justify-between items-center py-12 bg-black text-white w-full rounded-3xl px-6">
+          <div className="flex gap-4 font-bold justify-start items-center">
+            <h1 className="text-3xl">₱</h1>
+            <h1 className="text-5xl">${totalSpent}</h1>
+          </div>
+          <h1 className="font-bold text-md text-gray-500">PHP</h1>
         </div>
-        <h1 className="font-bold text-md text-gray-500">PHP</h1>
       </div>
       <div className="flex flex-col justify-center items-center flex-1 w-full ">
         <div className="flex justify-between items-center w-full mb-8">
@@ -140,35 +80,38 @@ export default function Dashboard() {
         </div>
       </div>
       <div className="w-full flex flex-col justify-center items-center gap-4">
-        {dummyData.map((data) => (
+        {expenses.map((expense) => (
           <a
-            key={data.id}
+            key={expense.id}
             className="w-full flex justify-between items-center shadow-lg bg-gray-250 rounded-xl p-3"
           >
             <div className=" flex justify-center items-center gap-4">
               <div className="p-3 rounded-md bg-gray-300 border border-gray-400">
-                <img className="h-8" src={data.image} alt="" />
+                <img className="h-8" src={expense.image} alt="" />
               </div>
               <div>
-                <h1 className="font-bold">{data.name}</h1>
+                <h1 className="font-bold">{expense.name}</h1>
                 <h1 className="text-xs font-semibold text-gray-500">
-                  {data.description}
+                  {expense.description}
                 </h1>
               </div>
             </div>
             <div>
               <h1 className="font-bold">
                 <span>₱</span>
-                {data.price}
+                {expense.price}
               </h1>
             </div>
           </a>
         ))}
       </div>
-      <div className="sticky bottom-4 right-0 self-end">
-        <div className=" bg-gray-300 border-2 border-gray-600 rounded-full p-4">
-          <img className="h-6" src="/add.png" alt="" />
-        </div>
+      <div className="sticky bottom-4 right-4 self-end">
+        <Link
+          href={"/dashboard/add"}
+          className=" bg-gray-300 border-2 border-gray-600 rounded-full p-4 flex"
+        >
+          <img className="h-8" src="/add.png" alt="" />
+        </Link>
       </div>
     </main>
   );

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Account() {
   return (
     <main className="flex flex-col justify-evenly items-center rounded-md p-5 h-svh mx-8">
@@ -8,16 +10,22 @@ export default function Account() {
         </h1>
       </div>
       <div className="flex justify-center items-center w-full max-w-xl flex-col gap-4">
-        <button className=" bg-gray-950 text-white font-thin text-xl rounded-md p-4 w-full">
+        <Link
+          href={"/account/register"}
+          className=" bg-gray-950 text-white text-center font-thin text-xl rounded-md p-4 w-full"
+        >
           Sign up
-        </button>
+        </Link>
 
         <h1 className="text-sm text-gray-600 font-thin">
           Already have an account?
         </h1>
-        <button className=" border-2 border-gray-700 text-gray-950 font-thin text-xl rounded-md p-4 w-full max-w-md">
+        <Link
+          href={"/account/login"}
+          className="text-gray-950 border text-center border-gray-500 font-thin text-xl rounded-md p-4 w-full"
+        >
           Log in
-        </button>
+        </Link>
       </div>
       <div>
         <p className="text-sm text-center text-gray-600">

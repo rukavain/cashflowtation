@@ -1,0 +1,104 @@
+"use client";
+
+import Link from "next/link";
+import Dropdown from "@/app/components/Dropdown";
+import { useState } from "react";
+import { addExpense } from "../../../../lib/expenses";
+import supabase from "../../../../lib/supabase";
+
+export default function Add() {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [price, setPrice] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const expense = {
+      name,
+      description,
+      category,
+      price: parseFloat(price), // Convert price to a float
+      user_id: supabase.auth.getUser().id, // Assuming you want to associate expenses with a user
+    };
+
+    const { data, error } = await addExpense(expense);
+    if (error) {
+      console.error("Error adding expense:", error);
+    } else {
+      // Handle success, e.g., show a success message, or reset the form
+      console.log("Expense added:", data);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="m-6 flex flex-col justify-center items-center gap-8"
+    >
+      <div className="self-start flex justify-center items-center gap-4">
+        <Link
+          href={"/dashboard"}
+          className="border-2 border-gray-300 min-w-max p-2 rounded-xl"
+        >
+          <img className="h-6" src="/back-icon.png" alt="" />
+        </Link>
+        <h1 className="font-bold text-xl">Add Expense</h1>
+      </div>
+      <div className="border-b-2 border-black flex flex-col justify-start items-center w-full px-10">
+        <h1 className="text-gray-400 self-start mb-10 font-bold">Amount</h1>
+        <div className="flex justify-between items-center w-full pb-8">
+          {" "}
+          <div className="flex gap-2 font-bold">
+            <h1 className="text-3xl ">₱</h1>
+            <input
+              type="text"
+              placeholder="150.00"
+              className="text-5xl max-w-44"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+          </div>
+          <h1>PHP</h1>
+        </div>
+      </div>
+      <div className="flex flex-1  justify-between items-center w-full">
+        <h1 className="text-gray-600 font-bold">Expense Category</h1>
+        <input
+          className="w-full font-bold p-4 border border-gray-400 shadow-md rounded-xl"
+          type="text"
+          placeholder="Food"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        />
+      </div>
+      <div className="flex flex-col gap-2 justify-start items-start w-full">
+        <h1 className="text-gray-600 font-bold">Name</h1>
+        <input
+          className="w-full font-bold p-4 border border-gray-400 shadow-md rounded-xl"
+          type="text"
+          placeholder="Hangout with friends"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+      <div className="flex flex-col gap-2 justify-start items-start w-full">
+        <h1 className="text-gray-600 font-bold">Description</h1>
+        <input
+          className="w-full font-bold p-4 border border-gray-400 shadow-md rounded-xl"
+          type="text"
+          placeholder="Meeting and snacks with Viktor"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </div>
+      <button
+        type="submit"
+        className=" bg-gray-900  text-white font-thin text-xl rounded-md p-4 w-full max-w-md"
+      >
+        Add Expense
+      </button>
+    </form>
+  );
+}
