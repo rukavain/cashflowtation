@@ -19,7 +19,26 @@ export default function Login() {
   const [isMounted, setIsMounted] = useState(false); // to ensure it's client-side
   const router = useRouter();
 
-  // Handle user state and redirect if logged in
+  useEffect(() => {
+    async function handleOAuthResponse() {
+      // ✅ Get session after login
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error("Auth Error:", error);
+        router.replace("/account/login"); // Redirect back to login if there's an error
+        return;
+      }
+
+      if (data?.session) {
+        console.log("User logged in successfully:", data.session);
+        router.replace("/dashboard"); // ✅ Redirect to dashboard after login
+      }
+    }
+
+    handleOAuthResponse();
+  }, [router]);
+
   useEffect(() => {
     setIsMounted(true); // Ensures this code only runs on the client
 
@@ -38,22 +57,6 @@ export default function Login() {
 
   if (!isMounted) return null; // Don't render on the server
 
-  useEffect(() => {
-    async function checkAuth() {
-      const { data, error } = await supabase.auth.getSession();
-
-      if (data?.session) {
-        // ✅ User is logged in, redirect to dashboard
-        router.replace("/dashboard");
-      } else {
-        // ❌ Authentication failed, redirect to login page
-        router.replace("/account/login");
-      }
-    }
-
-    checkAuth();
-  }, [router]);
-
   const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -67,13 +70,14 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     const redirectUrl =
       process.env.NODE_ENV === "production"
-        ? "https://cashflowtation-43bx-qxf5pdoi1-rukavains-projects.vercel.app/account/login"
-        : "http://localhost:3000/account/login";
+        ? "https://cashflowtation-43bx-qxf5pdoi1-rukavains-projects.vercel.app/account/login/callback"
+        : "http://localhost:3000/dashboard";
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: redirectUrl, // This tells Supabase where to send the user after login
+        redirectTo: `${window.location.origin}/account/login/callback`, // 👈 Ensure this matches Supabase settings
+        skipBrowserRedirect: true, // 👈 Prevents the #access_token from being appended
       },
     });
 
