@@ -38,6 +38,22 @@ export default function Login() {
 
   if (!isMounted) return null; // Don't render on the server
 
+  useEffect(() => {
+    async function checkAuth() {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (data?.session) {
+        // ✅ User is logged in, redirect to dashboard
+        router.replace("/dashboard");
+      } else {
+        // ❌ Authentication failed, redirect to login page
+        router.replace("/account/login");
+      }
+    }
+
+    checkAuth();
+  }, [router]);
+
   const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -51,13 +67,13 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     const redirectUrl =
       process.env.NODE_ENV === "production"
-        ? "https://cashflowtation-43bx-qxf5pdoi1-rukavains-projects.vercel.app/dashboard"
-        : "http://localhost:3000/dashboard"; // Local development URL
+        ? "https://cashflowtation-43bx-qxf5pdoi1-rukavains-projects.vercel.app/account/login"
+        : "http://localhost:3000/account/login";
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: redirectUrl, // This ensures the user is redirected properly after authentication
+        redirectTo: redirectUrl, // This tells Supabase where to send the user after login
       },
     });
 
