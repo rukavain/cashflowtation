@@ -76,7 +76,7 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/account/login/callback`, // 👈 Ensure this matches Supabase settings
+        redirectTo: redirectUrl, // 👈 Ensure this matches Supabase settings
         skipBrowserRedirect: true, // 👈 Prevents the #access_token from being appended
       },
     });
