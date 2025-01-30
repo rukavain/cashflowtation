@@ -3,13 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import supabase from "../../../lib/supabase";
 import { User } from "@supabase/supabase-js"; // Import User type
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null); // Define correct type
-  const router = useRouter();
 
   useEffect(() => {
     async function fetchUser() {
