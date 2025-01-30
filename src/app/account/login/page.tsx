@@ -89,13 +89,14 @@ export default function Login() {
   const handleGitHubLogin = async () => {
     const redirectUrl =
       process.env.NODE_ENV === "production"
-        ? "https://cashflowtation-43bx-qxf5pdoi1-rukavains-projects.vercel.app/dashboard"
-        : "http://localhost:3000/dashboard"; // Local development URL
+        ? "https://cashflowtation-43bx-qxf5pdoi1-rukavains-projects.vercel.app/account/login/callback"
+        : "http://localhost:3000/dashboard";
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "github",
       options: {
-        redirectTo: redirectUrl, // This ensures the user is redirected properly after authentication
+        redirectTo: redirectUrl, // 👈 Ensure this matches Supabase settings
+        skipBrowserRedirect: true, // 👈 Prevents the #access_token from being appended
       },
     });
 
