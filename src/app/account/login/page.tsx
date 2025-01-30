@@ -2,16 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // for nextjs 13+
+import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
-import supabase from "../../../../lib/supabase"; // Import supabase client
 import { signInWithEmail } from "../../../../lib/auth"; // Assuming this is your custom function
 import Image from "next/image";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isMounted, setIsMounted] = useState(false); // to ensure it's client-side
-
   const router = useRouter();
 
   // Handle user state and redirect if logged in
@@ -44,33 +49,38 @@ export default function Login() {
   };
 
   const handleGoogleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const redirectUrl =
+      process.env.NODE_ENV === "production"
+        ? "https://cashflowtation-43bx-qxf5pdoi1-rukavains-projects.vercel.app/dashboard"
+        : "http://localhost:3000/dashboard"; // Local development URL
+
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: {
+        redirectTo: redirectUrl, // This ensures the user is redirected properly after authentication
+      },
     });
 
     if (error) {
       console.error("Google login error:", error.message);
-      return;
-    }
-
-    if (data?.url) {
-      window.location.href = data.url;
     }
   };
 
   const handleGitHubLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const redirectUrl =
+      process.env.NODE_ENV === "production"
+        ? "https://cashflowtation-43bx-qxf5pdoi1-rukavains-projects.vercel.app/dashboard"
+        : "http://localhost:3000/dashboard"; // Local development URL
+
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "github",
+      options: {
+        redirectTo: redirectUrl, // This ensures the user is redirected properly after authentication
+      },
     });
 
     if (error) {
       console.error("GitHub login error:", error.message);
-      return;
-    }
-
-    // Redirect the user to GitHub's login page
-    if (data?.url) {
-      window.location.href = data.url;
     }
   };
 
