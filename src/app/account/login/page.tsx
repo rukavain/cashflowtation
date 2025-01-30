@@ -24,10 +24,8 @@ export default function Login() {
       const { data } = await supabase.auth.getSession();
 
       if (data?.session) {
-        // ✅ Store session and redirect user
         router.replace("/dashboard");
       } else {
-        // ❌ Authentication failed, redirect to login
         router.replace("/account/login");
       }
     }
