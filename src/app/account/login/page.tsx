@@ -21,18 +21,14 @@ export default function Login() {
 
   useEffect(() => {
     async function handleOAuthResponse() {
-      // ✅ Get session after login
-      const { data, error } = await supabase.auth.getSession();
-
-      if (error) {
-        console.error("Auth Error:", error);
-        router.replace("/account/login"); // Redirect back to login if there's an error
-        return;
-      }
+      const { data } = await supabase.auth.getSession();
 
       if (data?.session) {
-        console.log("User logged in successfully:", data.session);
-        router.replace("/dashboard"); // ✅ Redirect to dashboard after login
+        // ✅ Store session and redirect user
+        router.replace("/dashboard");
+      } else {
+        // ❌ Authentication failed, redirect to login
+        router.replace("/account/login");
       }
     }
 
@@ -75,10 +71,7 @@ export default function Login() {
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: redirectUrl, // 👈 Ensure this matches Supabase settings
-        skipBrowserRedirect: true, // 👈 Prevents the #access_token from being appended
-      },
+      options: { redirectTo: redirectUrl },
     });
 
     if (error) {
@@ -89,14 +82,13 @@ export default function Login() {
   const handleGitHubLogin = async () => {
     const redirectUrl =
       process.env.NODE_ENV === "production"
-        ? "https://cashflowtation-43bx-qxf5pdoi1-rukavains-projects.vercel.app/account/login/callback"
-        : "http://localhost:3000/dashboard";
+        ? "https://cashflowtation-43bx-qxf5pdoi1-rukavains-projects.vercel.app/dashboard"
+        : "http://localhost:3000/dashboard"; // Local development URL
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "github",
       options: {
-        redirectTo: redirectUrl, // 👈 Ensure this matches Supabase settings
-        skipBrowserRedirect: true, // 👈 Prevents the #access_token from being appended
+        redirectTo: redirectUrl, // This ensures the user is redirected properly after authentication
       },
     });
 
